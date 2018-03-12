@@ -1,0 +1,21 @@
+.first-class {
+    color: red;
+}
+
+@media only screen and (max-width: 900px) {
+    .first-class,
+    .second-class {
+        height: 20px;
+    }
+}
+
+@media only screen and (min-width: 900px) {
+    .first-class,
+    .second-class {
+        text-align: left;
+    }
+}
+
+.third-class {
+    margin: 5px;
+}

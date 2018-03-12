@@ -1,0 +1,54 @@
+{
+  "name": "webpack-critical-styles-plugin",
+  "version": "0.0.1",
+  "description": "Inline critical CSS with Webpack + Penthouse",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha ./test/**/*.test.js",
+    "prettier": "prettier --write {index.js,{lib,test}/**/*.js}"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/akash5474/webpack-critical-styles-plugin.git"
+  },
+  "keywords": [
+    "critical",
+    "path",
+    "css",
+    "performance",
+    "optimization",
+    "weback",
+    "plugin",
+    "webpack-critical-styles-plugin"
+  ],
+  "author": "Akash Pannu",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^2.3.2",
+    "clean-css": "^4.1.11",
+    "critical": "^1.1.0",
+    "css": "^2.2.1",
+    "express": "^4.16.2",
+    "filter-css": "^0.1.2",
+    "get-port": "^3.2.0",
+    "http-proxy-middleware": "^0.17.4",
+    "limax": "^1.6.0",
+    "loader-utils": "^1.1.0",
+    "lodash": "^4.17.5",
+    "schema-utils": "^0.4.5",
+    "webpack-sources": "^1.1.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^3.0.0",
+    "mocha": "^5.0.4",
+    "prettier": "^1.11.1",
+    "proxyquire": "^2.0.0",
+    "sinon": "^4.4.2"
+  },
+  "prettier": {
+    "tabWidth": 4,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  }
+}

@@ -1,0 +1,10 @@
+.first-class {
+    color: red;
+}
+
+@media only screen and (min-width: 900px) {
+    .first-class,
+    .second-class {
+        text-align: left;
+    }
+}

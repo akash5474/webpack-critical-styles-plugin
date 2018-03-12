@@ -1,0 +1,10 @@
+@media only screen and (max-width: 900px) {
+  .first-class,
+  .second-class {
+    height: 20px;
+  }
+}
+
+.third-class {
+  margin: 5px;
+}
