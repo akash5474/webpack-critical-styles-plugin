@@ -45,7 +45,7 @@ module.exports = {
     new CriticalStylesPlugin({
         urls: [ '/', '/not-found' ],
 
-        filename: `css/[name].[id].[contenthash].[hash].css`,
+        filename: 'css/[name].[id].[contenthash].[hash].css',
 
         extract: true,
 
