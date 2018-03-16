@@ -54,10 +54,8 @@ module.exports = {
         externals: { path: '/myapp/static/', root: './static' },
 
         proxy: {
-            '/v1': {
-                target: 'https://mysite.com/',
-                changeOrigin: true,
-                secure: false
+            '/api/v1': {
+                target: 'https://mysite.com/'
             }
         },
 
