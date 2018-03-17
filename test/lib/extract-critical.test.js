@@ -4,9 +4,16 @@ const slug = require('limax');
 const { expect } = require('chai');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
+const { OriginalSource } = require('webpack-sources');
 
-const cssDir = path.join(__dirname, '../fixtures/css');
-const testCSSFile = fs.readFileSync(`${cssDir}/test-all.css`).toString();
+const fixturesDir = path.join(__dirname, '../fixtures');
+const testCSSFile = fs
+    .readFileSync(`${fixturesDir}/css/test-all.css`)
+    .toString();
+
+const testHtmlFile = fs
+    .readFileSync(`${fixturesDir}/testIndex.html`)
+    .toString();
 
 describe('lib/extract-critical.js', () => {
     const port = 1234;
@@ -154,13 +161,70 @@ describe('lib/extract-critical.js', () => {
     });
 
     describe('startJobs', () => {
-        xit('honors parallel option', () => {});
+        let assets;
+        let cssFiles;
 
-        xit('defaults to 5 when parallel option not provided', () => {});
+        beforeEach(() => {
+            const cssFileName = 'css/test-file.css';
+            const htmlFileName = 'test-index.html';
 
-        xit('maximum of 5 parallel jobs', () => {});
+            const cssSrc = new OriginalSource(testCSSFile, cssFileName);
+            const htmlSrc = new OriginalSource(testHtmlFile, htmlFileName);
 
-        xit('nJobs === targets.length when targets.length < options.parallel', () => {});
+            cssFiles = [cssFileName];
+            assets = {
+                [cssFileName]: cssSrc,
+                [htmlFileName]: htmlSrc,
+            };
+        });
+
+        it('honors parallel option', async () => {
+            const parallel = 3;
+            const result = await extractCritical.startJobs(
+                assets,
+                cssFiles,
+                expectedTargets,
+                { parallel }
+            );
+
+            expect(result.length).to.equal(parallel);
+            expect(penthouseStub.callCount).to.equal(targetsData.length);
+        });
+
+        it('defaults to 5 when parallel option not provided', async () => {
+            const result = await extractCritical.startJobs(
+                assets,
+                cssFiles,
+                expectedTargets
+            );
+
+            expect(result.length).to.equal(5);
+            expect(penthouseStub.callCount).to.equal(targetsData.length);
+        });
+
+        it('maximum of 5 parallel jobs', async () => {
+            const result = await extractCritical.startJobs(
+                assets,
+                cssFiles,
+                expectedTargets,
+                { parallel: 10 }
+            );
+
+            expect(result.length).to.equal(5);
+            expect(penthouseStub.callCount).to.equal(targetsData.length);
+        });
+
+        it('nJobs === targets.length when targets.length < options.parallel', async () => {
+            const result = await extractCritical.startJobs(
+                assets,
+                cssFiles,
+                expectedTargets.slice(0, 2),
+                { parallel: 4 }
+            );
+
+            expect(result.length).to.equal(2);
+            expect(penthouseStub.callCount).to.equal(2);
+        });
     });
 
     describe('extractCritical', () => {

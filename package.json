@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "test": "mocha ./test/**/*.test.js",
+    "test": "mocha './test/**/*.test.js'",
     "prettier": "prettier --write {index.js,{lib,test}/**/*.js}",
     "prepublish": "npm test"
   },
