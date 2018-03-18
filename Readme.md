@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.com/akash5474/webpack-critical-styles-plugin.svg?token=AgFUp89emzKyjp5EaVq3&branch=master)](https://travis-ci.com/akash5474/webpack-critical-styles-plugin)
+[![Build Status](https://travis-ci.org/akash5474/webpack-critical-styles-plugin.svg?branch=master)](https://travis-ci.org/akash5474/webpack-critical-styles-plugin)
+[![Coverage Status](https://coveralls.io/repos/github/akash5474/webpack-critical-styles-plugin/badge.svg?branch=master)](https://coveralls.io/github/akash5474/webpack-critical-styles-plugin?branch=master)
 
 # webpack-critical-styles-plugin
 Inline above the fold CSS with Webpack + Penthouse
