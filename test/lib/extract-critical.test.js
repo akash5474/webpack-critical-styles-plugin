@@ -11,6 +11,14 @@ const testCSSFile = fs
     .readFileSync(`${fixturesDir}/css/test-all.css`)
     .toString();
 
+const cleanedCSSFile = fs
+    .readFileSync(`${fixturesDir}/css/cleaned.css`)
+    .toString();
+
+const ignoredCSSFile = fs
+    .readFileSync(`${fixturesDir}/css/ignored.css`)
+    .toString();
+
 const testHtmlFile = fs
     .readFileSync(`${fixturesDir}/testIndex.html`)
     .toString();
@@ -31,11 +39,25 @@ describe('lib/extract-critical.js', () => {
         { url: `${baseUrl}/another-route`, width: 1000, height: 1200 },
     ];
 
+    let assets;
+    let cssFiles;
     let penthouseStub;
     let extractCritical;
     let expectedTargets;
 
     beforeEach(() => {
+        const cssFileName = 'css/test-file.css';
+        const htmlFileName = 'test-index.html';
+
+        const cssSrc = new OriginalSource(testCSSFile, cssFileName);
+        const htmlSrc = new OriginalSource(testHtmlFile, htmlFileName);
+
+        cssFiles = [cssFileName];
+        assets = {
+            [cssFileName]: cssSrc,
+            [htmlFileName]: htmlSrc,
+        };
+
         expectedTargets = targetsData.map(target => ({ ...target }));
 
         penthouseStub = sinon.stub().resolves(testCSSFile);
@@ -161,23 +183,6 @@ describe('lib/extract-critical.js', () => {
     });
 
     describe('startJobs', () => {
-        let assets;
-        let cssFiles;
-
-        beforeEach(() => {
-            const cssFileName = 'css/test-file.css';
-            const htmlFileName = 'test-index.html';
-
-            const cssSrc = new OriginalSource(testCSSFile, cssFileName);
-            const htmlSrc = new OriginalSource(testHtmlFile, htmlFileName);
-
-            cssFiles = [cssFileName];
-            assets = {
-                [cssFileName]: cssSrc,
-                [htmlFileName]: htmlSrc,
-            };
-        });
-
         it('honors parallel option', async () => {
             const parallel = 3;
             const result = await extractCritical.startJobs(
@@ -228,9 +233,28 @@ describe('lib/extract-critical.js', () => {
     });
 
     describe('extractCritical', () => {
-        xit('extracts critical css', () => {});
+        it('extracts critical css', async () => {
+            const result = await extractCritical.extractCritical(
+                assets,
+                cssFiles,
+                8080
+            );
 
-        xit('honors rules given in options.ignore css', () => {});
+            expect(result).to.equal(cleanedCSSFile);
+            expect(penthouseStub.callCount).to.equal(1);
+        });
+
+        it('calls filterCSS with options.ignore', async () => {
+            const result = await extractCritical.extractCritical(
+                assets,
+                cssFiles,
+                8080,
+                { ignore: ['margin'] }
+            );
+
+            expect(result).to.equal(ignoredCSSFile);
+            expect(penthouseStub.callCount).to.equal(1);
+        });
 
         xit('calls filterCSS with options.ignoreOptions', () => {});
     });

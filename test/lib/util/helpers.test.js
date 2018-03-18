@@ -3,6 +3,8 @@ const path = require('path');
 const { expect } = require('chai');
 const loaderUtils = require('loader-utils');
 const { RawSource } = require('webpack-sources');
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
 
 const { getTargets, getFileName, getFiles } = require('../../../lib/util/helpers');
 
@@ -163,6 +165,33 @@ describe('lib/util/helpers.js', () => {
             const result = getFileName(namePattern, asset, chunk, hash);
 
             expect(result).to.equal(expectedName);
+        });
+    });
+
+    describe('checkOptionOverrides', () => {
+        const optionOverrides = ['opt1', 'opt2', 'opt3'];
+
+        let checkOptionOverrides;
+        let logWarningStub;
+
+        beforeEach(() => {
+            logWarningStub = sinon.stub();
+
+            checkOptionOverrides = proxyquire('../../../lib/util/helpers', {
+                './logging': { logWarning: logWarningStub }
+            }).checkOptionOverrides;
+        });
+
+        it('calls logWarning if overridable options are present', () => {
+            checkOptionOverrides({ opt1: true, opt2: true }, optionOverrides)
+
+            expect(logWarningStub.callCount).to.equal(1);
+        });
+
+        it('does not call logWarning if no overridable options', () => {
+            checkOptionOverrides({ opt4: true, opt5: true }, optionOverrides)
+
+            expect(logWarningStub.notCalled).to.equal(true);
         });
     });
 });

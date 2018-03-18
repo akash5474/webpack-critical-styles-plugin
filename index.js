@@ -41,13 +41,6 @@ class CriticalStylesPlugin {
             this.options
         );
 
-        if (Number.isInteger(this.options.stall)) {
-            const stall = Math.min(this.options.stall, 5);
-            await new Promise(resolve =>
-                setTimeout(resolve, 1000 * 60 * stall)
-            );
-        }
-
         try {
             let criticalCSS = await extractCritical(
                 assets,
