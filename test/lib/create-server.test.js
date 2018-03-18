@@ -4,6 +4,8 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const loaderUtils = require('loader-utils');
 const { RawSource } = require('webpack-sources');
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
 
 const createServer = require('../../lib/create-server');
 
@@ -42,7 +44,7 @@ describe('lib/create-server.js', () => {
             assets[testCSS] = new RawSource(testCSSFile);
         });
 
-        afterEach(() => server.close());
+        afterEach(() => { if (server) server.close(); });
 
         it('serves index.html file', async () => {
             const result = await createServer(assets, indexHtml, []);
@@ -155,6 +157,66 @@ describe('lib/create-server.js', () => {
             expect(htmlRes.text).to.be.equal(indexHtmlFile);
         });
 
-        xit('applies proxy option', async () => {});
+        it('applies proxy option', async () => {
+            const proxyMiddlewareStub = sinon.stub().returns((req, res, next) => { next() });
+            const createServer = proxyquire('../../lib/create-server', {
+                'http-proxy-middleware': proxyMiddlewareStub
+            });
+
+            const proxy = {
+                '/v1/api': {
+                    target: 'https://test-site.com'
+                },
+
+                '/v2/api': {
+                    target: 'https://test-site-2.com'
+                }
+            };
+
+            const result = await createServer(assets, indexHtml, [], { proxy });
+            server = result.server;
+
+            expect(proxyMiddlewareStub.callCount).to.equal(2);
+
+            Object.entries(proxy).forEach(([urlPath, opts], idx) => {
+                const call = proxyMiddlewareStub.getCall(idx);
+
+                expect(call.calledWithExactly(opts)).to.equal(true);
+            });
+
+        });
+
+        it('catches and logs errors', async () => {
+            const expressStub = sinon.stub().throws();
+            const logErrorStub = sinon.stub();
+
+            const createServer = proxyquire('../../lib/create-server', {
+                express: expressStub,
+                './util/logging': { logError: logErrorStub }
+            });
+
+            try {
+                const result = await createServer();
+            } catch (err) {
+                expect(err).to.be.an('error');
+            }
+
+            expect(expressStub.threw()).to.equal(true);
+            expect(expressStub.exceptions.length).to.equal(1);
+            expect(logErrorStub.callCount).to.equal(2);
+        });
+
+        it('honors stall option and prints log message', async () => {
+            const logInfoStub = sinon.stub();
+
+            const createServer = proxyquire('../../lib/create-server', {
+                './util/logging': { logInfo: logInfoStub }
+            });
+
+            const result = await createServer(assets, indexHtml, [], { stall: 5, test: { duration: 1 } });
+            server = result.server;
+
+            expect(logInfoStub.callCount).to.equal(1);
+        });
     });
 });
