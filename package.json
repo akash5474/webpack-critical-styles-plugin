@@ -1,6 +1,6 @@
 {
   "name": "webpack-critical-styles-plugin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Inline critical CSS with Webpack + Penthouse",
   "author": "Akash Pannu",
   "license": "MIT",
