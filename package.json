@@ -9,7 +9,7 @@
     "coverage": "nyc report",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "test": "nyc mocha --reporter min './test/**/*.test.js'",
-    "prettier": "prettier --write {index.js,{lib,test}/**/*.js}",
+    "prettier": "prettier --write './{index.js,{lib,test}/**/*.js}'",
     "prepublish": "npm test"
   },
   "repository": {

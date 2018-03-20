@@ -44,7 +44,11 @@ describe('lib/create-server.js', () => {
             assets[testCSS] = new RawSource(testCSSFile);
         });
 
-        afterEach(() => { if (server) server.close(); });
+        afterEach(() => {
+            if (server) {
+                server.close();
+            }
+        });
 
         it('serves index.html file', async () => {
             const result = await createServer(assets, indexHtml, []);
@@ -158,19 +162,23 @@ describe('lib/create-server.js', () => {
         });
 
         it('applies proxy option', async () => {
-            const proxyMiddlewareStub = sinon.stub().returns((req, res, next) => { next() });
+            const proxyMiddlewareStub = sinon
+                .stub()
+                .returns((req, res, next) => {
+                    next();
+                });
             const createServer = proxyquire('../../lib/create-server', {
-                'http-proxy-middleware': proxyMiddlewareStub
+                'http-proxy-middleware': proxyMiddlewareStub,
             });
 
             const proxy = {
                 '/v1/api': {
-                    target: 'https://test-site.com'
+                    target: 'https://test-site.com',
                 },
 
                 '/v2/api': {
-                    target: 'https://test-site-2.com'
-                }
+                    target: 'https://test-site-2.com',
+                },
             };
 
             const result = await createServer(assets, indexHtml, [], { proxy });
@@ -183,7 +191,6 @@ describe('lib/create-server.js', () => {
 
                 expect(call.calledWithExactly(opts)).to.equal(true);
             });
-
         });
 
         it('catches and logs errors', async () => {
@@ -192,7 +199,7 @@ describe('lib/create-server.js', () => {
 
             const createServer = proxyquire('../../lib/create-server', {
                 express: expressStub,
-                './util/logging': { logError: logErrorStub }
+                './util/logging': { logError: logErrorStub },
             });
 
             try {
@@ -210,10 +217,13 @@ describe('lib/create-server.js', () => {
             const logInfoStub = sinon.stub();
 
             const createServer = proxyquire('../../lib/create-server', {
-                './util/logging': { logInfo: logInfoStub }
+                './util/logging': { logInfo: logInfoStub },
             });
 
-            const result = await createServer(assets, indexHtml, [], { stall: 5, test: { duration: 1 } });
+            const result = await createServer(assets, indexHtml, [], {
+                stall: 5,
+                test: { duration: 1 },
+            });
             server = result.server;
 
             expect(logInfoStub.callCount).to.equal(1);

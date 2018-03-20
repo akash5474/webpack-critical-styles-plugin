@@ -110,7 +110,7 @@ describe('lib/replace-assets.js', () => {
             };
         });
 
-        it('replaces html and css assets', () => {
+        it('does not replace html and css assets by default', () => {
             replaceAssets.replaceAssets(
                 { assets, chunks, hash },
                 htmlFileName,
@@ -118,6 +118,20 @@ describe('lib/replace-assets.js', () => {
                 [cssFileName],
                 criticalCSSFile,
                 { filename: '[name].css', minify: false }
+            );
+
+            expect(assets[htmlFileName].source()).to.equal(inlinedHtmlFile);
+            expect(assets[cssFileName].source().trim()).to.equal(testCSSFile);
+        });
+
+        it('replaces html and css assets with extract true', () => {
+            replaceAssets.replaceAssets(
+                { assets, chunks, hash },
+                htmlFileName,
+                inlinedHtmlFile,
+                [cssFileName],
+                criticalCSSFile,
+                { filename: '[name].css', minify: false, extract: true }
             );
 
             expect(assets[htmlFileName].source()).to.equal(

@@ -10,7 +10,13 @@ const { getFiles, checkOptionOverrides } = require('./lib/util/helpers');
 
 class CriticalStylesPlugin {
     constructor(options = {}) {
-        validateOptions(schema, options, 'Critical Styles Plugin');
+        try {
+            validateOptions(schema, options, 'Critical Styles Plugin');
+        } catch (err) {
+            logError(err);
+            throw err;
+        }
+
         this.options = options;
     }
 
@@ -23,10 +29,16 @@ class CriticalStylesPlugin {
         );
     }
 
-    async emit(compilation, excludeFiles = []) {
+    async emit(compilation) {
         this.warnOptionOverrides();
 
         const { assets, chunks, hash } = compilation;
+        const { excludeChunks = [] } = this.options;
+
+        const excludeFiles = chunks
+            .filter(c => excludeChunks.includes(c.name))
+            .reduce((acc, c) => [...acc, ...c.files], []);
+
         const fileNames = Object.keys(assets);
 
         const { htmlFiles: [indexHtml], cssFiles, includedFiles } = getFiles(
@@ -49,9 +61,10 @@ class CriticalStylesPlugin {
                 this.options
             );
 
+            const { publicPath = '/' } = this.options;
             const ignore = excludeFiles
-                .filter(file => /\.css$/.test(file))
-                .map(file => this.options.publicPath + file);
+                .filter(file => file.endsWith('.css'))
+                .map(file => publicPath + file);
 
             const inlinedHtml = inlineCritical(
                 assets[indexHtml].source(),
@@ -59,16 +72,14 @@ class CriticalStylesPlugin {
                 { ignore }
             );
 
-            if (this.options.extract) {
-                replaceAssets(
-                    compilation,
-                    indexHtml,
-                    inlinedHtml,
-                    cssFiles,
-                    criticalCSS,
-                    this.options
-                );
-            }
+            replaceAssets(
+                compilation,
+                indexHtml,
+                inlinedHtml,
+                cssFiles,
+                criticalCSS,
+                this.options
+            );
         } catch (err) {
             logError('Error extracting critical CSS');
             logError(err);
@@ -85,13 +96,7 @@ class CriticalStylesPlugin {
                 publicPath: compiler.options.output.publicPath,
             };
 
-            const { excludeChunks = [] } = this.options;
-
-            const excludeFiles = compilation.chunks
-                .filter(c => excludeChunks.includes(c.name))
-                .reduce((acc, c) => [...acc, ...c.files], []);
-
-            await this.emit(compilation, excludeFiles);
+            await this.emit(compilation);
             callback();
         });
     }

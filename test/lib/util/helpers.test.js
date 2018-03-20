@@ -6,7 +6,11 @@ const { RawSource } = require('webpack-sources');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
-const { getTargets, getFileName, getFiles } = require('../../../lib/util/helpers');
+const {
+    getTargets,
+    getFileName,
+    getFiles,
+} = require('../../../lib/util/helpers');
 
 const cssDir = path.join(__dirname, '../../fixtures/css');
 const testCSSFile = fs.readFileSync(`${cssDir}/test-all.css`).toString();
@@ -58,10 +62,10 @@ describe('lib/util/helpers.js', () => {
     });
 
     describe('getFiles', () => {
-        const filterHtmlFiles = file => /\.html$/.test(file);
-        const filterCSSFiles = file => /\.css$/.test(file);
+        const filterHtmlFiles = file => file.endsWith('.html');
+        const filterCSSFiles = file => file.endsWith('.css');
         const filterOtherFiles = file =>
-            !/\.html$/.test(file) && !/\.css$/.test(file);
+            !file.endsWith('.html') && !file.endsWith('.css');
 
         let fileNames;
         let excludeFiles;
@@ -178,18 +182,18 @@ describe('lib/util/helpers.js', () => {
             logWarningStub = sinon.stub();
 
             checkOptionOverrides = proxyquire('../../../lib/util/helpers', {
-                './logging': { logWarning: logWarningStub }
+                './logging': { logWarning: logWarningStub },
             }).checkOptionOverrides;
         });
 
         it('calls logWarning if overridable options are present', () => {
-            checkOptionOverrides({ opt1: true, opt2: true }, optionOverrides)
+            checkOptionOverrides({ opt1: true, opt2: true }, optionOverrides);
 
             expect(logWarningStub.callCount).to.equal(1);
         });
 
         it('does not call logWarning if no overridable options', () => {
-            checkOptionOverrides({ opt4: true, opt5: true }, optionOverrides)
+            checkOptionOverrides({ opt4: true, opt5: true }, optionOverrides);
 
             expect(logWarningStub.notCalled).to.equal(true);
         });
